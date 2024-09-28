@@ -130,8 +130,24 @@ class _WebViewExampleState extends State<WebViewExample> {
       debugPrint('Checking if the web view should be reloaded');
       if (timeSinceLastNavigation != null &&
           DateTime.now().difference(timeSinceLastNavigation!) >=
-              const Duration(minutes: 2)) {
-        _controller.reload();
+              const Duration(minutes: 2)) { // 2 minutes
+        _controller.runJavaScript('''
+        fetch('https://universityheights.myturn.com/library')
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.text();
+          })
+          .then(data => {
+            console.log('Successfully fetched the page');
+            // You can do something with the fetched data here if needed
+          })
+          .catch(error => {
+            console.error('There was a problem with the fetch operation:', error.message);
+          });
+        ''');
+
         debugPrint('Reloading the web view');
         timeSinceLastNavigation = DateTime.now();
       } else {

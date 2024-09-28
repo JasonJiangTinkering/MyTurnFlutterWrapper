@@ -56,11 +56,10 @@ dev_dependencies:
 # This package supports all platforms listed below.
 platforms:
   android:
-  ios:
   linux:
   macos:
   windows:
-  
+
 flutter:
 
   # The following line ensures that the Material Icons font is
