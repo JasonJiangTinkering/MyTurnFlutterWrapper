@@ -255,7 +255,6 @@ Page resource error:
               children: <Widget>[
                 TextField(
                   decoration: const InputDecoration(labelText: 'Username'),
-                  autofocus: true,
                   controller: usernameTextController,
                 ),
                 TextField(
@@ -316,7 +315,9 @@ class SampleMenu extends StatelessWidget {
   SampleMenu({
     super.key,
     required this.webViewController,
-  });
+  }) {
+    launchToolLibraryUrl();
+  }
 
   final WebViewController webViewController;
   late final WebViewCookieManager cookieManager = WebViewCookieManager();
@@ -605,6 +606,11 @@ class SampleMenu extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> launchToolLibraryUrl() async {
+    final Uri url = Uri.parse('https://universityheights.myturn.com/library/');
+    await webViewController.loadRequest(url);
   }
 }
 
