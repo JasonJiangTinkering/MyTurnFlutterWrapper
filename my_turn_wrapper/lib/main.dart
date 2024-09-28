@@ -1,8 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:my_turn_wrapper/webViewHead.dart';
+import 'package:my_turn_wrapper/webViewWindowsHead.dart';
 // import 'package:webview_flutter_web/webview_flutter_web.dart';
 
-void main() => runApp(const MaterialApp(home: WebViewExample()));
+void main() {
+  if (Platform.isWindows) {
+    windowsMain();
+  } else {
+    runApp(const MaterialApp(home: WebViewExample()));
+  }
+}
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();

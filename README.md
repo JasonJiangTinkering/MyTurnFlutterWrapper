@@ -11,8 +11,7 @@ Call it - Tool Library - Refreshed.
 # How to build into release files
 
 1. flutter build apk --release
-2. flutter build macos --release
-3. flutter build windows --release
-4. flutter build linux --release
+2. flutter build windows --release (Must be on a windows machine)
+3. flutter build linux --release (Must be on a linux machine)
 
 
