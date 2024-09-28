@@ -119,11 +119,39 @@ class WebViewExample extends StatefulWidget {
 
 class _WebViewExampleState extends State<WebViewExample> {
   late final WebViewController _controller;
+  DateTime? timeSinceLastNavigation;
+
+  Timer? _reloadTimer;
+
+  void _startReloadTimer() {
+    timeSinceLastNavigation = DateTime.now();
+    _reloadTimer?.cancel();
+    _reloadTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      debugPrint('Checking if the web view should be reloaded');
+      if (timeSinceLastNavigation != null &&
+          DateTime.now().difference(timeSinceLastNavigation!) >=
+              const Duration(minutes: 2)) {
+        _controller.reload();
+        debugPrint('Reloading the web view');
+        timeSinceLastNavigation = DateTime.now();
+      } else {
+        debugPrint(
+            'Not reloading the web view, time since last navigation: ${DateTime.now().difference(timeSinceLastNavigation!).inMinutes} minutes');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _reloadTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
 
+    _startReloadTimer();
     // #docregion platform_features
     late final PlatformWebViewControllerCreationParams params;
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
@@ -204,6 +232,17 @@ Page resource error:
     // #enddocregion platform_features
 
     _controller = controller;
+
+    // Add a listener for new HTTP requests
+    _controller.setNavigationDelegate(
+      NavigationDelegate(
+        onNavigationRequest: (NavigationRequest request) {
+          debugPrint('New HTTP request: ${request.url}');
+          timeSinceLastNavigation = DateTime.now();
+          return NavigationDecision.navigate;
+        },
+      ),
+    );
   }
 
   @override
