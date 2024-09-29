@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:my_turn_wrapper/consts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // #docregion platform_imports
@@ -124,13 +125,12 @@ class _WebViewExampleState extends State<WebViewExample> {
   Timer? _reloadTimer;
 
   void _startReloadTimer() {
-    timeSinceLastNavigation = DateTime.now();
     _reloadTimer?.cancel();
     _reloadTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       debugPrint('Checking if the web view should be reloaded');
       if (timeSinceLastNavigation != null &&
           DateTime.now().difference(timeSinceLastNavigation!) >=
-              const Duration(minutes: 2)) { // 2 minutes
+              const Duration(minutes: reloadTimeMinutes)) { // 2 minutes
         _controller.runJavaScript('''
         fetch('https://universityheights.myturn.com/library')
           .then(response => {
@@ -165,6 +165,7 @@ class _WebViewExampleState extends State<WebViewExample> {
 
   @override
   void initState() {
+    timeSinceLastNavigation = DateTime.now();
     super.initState();
 
     _startReloadTimer();

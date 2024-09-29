@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_turn_wrapper/consts.dart';
 import 'dart:async';
 
 import 'package:webview_windows/webview_windows.dart';
@@ -32,11 +33,52 @@ class _ExampleBrowser extends State<ExampleBrowser> {
   final _textController = TextEditingController();
   final List<StreamSubscription> _subscriptions = [];
   bool _isWebviewSuspended = false;
+  DateTime? timeSinceLastNavigation;
+  Timer? _reloadTimer;
+
+  void _startReloadTimer() {
+    timeSinceLastNavigation = DateTime.now();
+    _reloadTimer?.cancel();
+    _reloadTimer = Timer.periodic(const Duration(minutes: reloadTimeMinutes), (timer) {
+      debugPrint("Checking if the web view should be reloaded");
+      if (timeSinceLastNavigation != null &&
+          DateTime.now().difference(timeSinceLastNavigation!) >=
+              const Duration(minutes: 2)) {
+        // 2 minutes
+        _controller.executeScript('''
+        fetch('https://universityheights.myturn.com/library')
+          .then(response => {
+            if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+            return response.text();
+          })
+          .then(data => {
+            console.log('Successfully fetched the page');
+          // You can do something with the fetched data here if needed
+        })
+        .catch(error => {
+          console.error('There was a problem with the fetch operation:', error.message);
+        });
+      ''');
+        debugPrint('Reloading the web view');
+        timeSinceLastNavigation = DateTime.now();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _reloadTimer?.cancel();
+    _subscriptions.forEach((s) => s.cancel());
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    _startReloadTimer();
   }
 
   Future<void> initPlatformState() async {
@@ -222,12 +264,5 @@ class _ExampleBrowser extends State<ExampleBrowser> {
     );
 
     return decision ?? WebviewPermissionDecision.none;
-  }
-
-  @override
-  void dispose() {
-    _subscriptions.forEach((s) => s.cancel());
-    _controller.dispose();
-    super.dispose();
   }
 }

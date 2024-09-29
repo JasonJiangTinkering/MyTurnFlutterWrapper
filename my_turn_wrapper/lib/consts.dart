@@ -1,0 +1,1 @@
+const reloadTimeMinutes = 2;
